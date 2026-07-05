@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bufete Aguilera Abogados - Asistente Virtual</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@700&family=Segoe+UI&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-shadow: none; box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Fondo exterior oscuro simulando los bordes de la tarjeta */
+        body { background-color: #2b1104; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        .chat-container { width: 100%; max-width: 450px; height: 100vh; background: #fff; display: flex; flex-direction: column; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        
+        /* Encabezado con los colores caoba/rojo oscuro y dorado de la tarjeta */
+        .chat-header { 
+            background: linear-gradient(135deg, #4a1505 0%, #9e3611 50%, #4a1505 100%); 
+            color: white; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2px;
+            text-align: center;
+            border-bottom: 3px solid #d49842; /* Línea dorada */
+        }
+        
+        /* Fuente Serif para el título, como en la tarjeta */
+        .chat-header .title { 
+            font-family: 'Playfair Display', serif; 
+            font-weight: bold; 
+            font-size: 1.4rem; 
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            letter-spacing: 0.5px;
+        }
+        
+        .chat-header .subtitle { 
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem; 
+            color: #f7d299; /* Tono dorado claro */
+            font-weight: 500; 
+        }
+        
+        /* Fuente cursiva para el nombre del Licenciado, idéntico a la tarjeta */
+        .chat-header .status { 
+            font-family: 'Dancing Script', cursive; 
+            font-size: 1.4rem; 
+            color: #ffffff; 
+            margin-top: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        /* Fondo del área de chat en tono crema/pergamino */
+        .chat-box { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            background-color: #f9f6f0; 
+        }
+        
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; }
+        
+        /* Mensajes del Bot (Blancos con borde caoba) */
+        .msg.bot { 
+            background: white; 
+            align-self: flex-start; 
+            border-top-left-radius: 0; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #7a2205;
+        }
+        
+        /* Mensajes del Usuario (Dorados claros con borde caoba oscuro) */
+        .msg.user { 
+            background: #f5e4c3; 
+            color: #2b1104;
+            align-self: flex-end; 
+            border-top-right-radius: 0; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-right: 4px solid #4a1505;
+        }
+        
+        .options-container { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+        
+        /* Botones de opciones (Estilo elegante caoba) */
+        .btn-option { 
+            background: #fff; 
+            border: 2px solid #7a2205; 
+            color: #7a2205; 
+            padding: 10px 15px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            text-align: center; 
+            transition: 0.3s; 
+        }
+        
+        .btn-option:hover { 
+            background: #7a2205; 
+            color: white; 
+            box-shadow: 0 3px 6px rgba(122,34,5,0.3);
+        }
+        
+        .chat-input-area { padding: 12px; background: #ffffff; display: flex; gap: 10px; align-items: center; border-top: 1px solid #ddd; }
+        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 0.95rem; background: #f9f9f9; }
+        input[type="text"]:focus { border-color: #7a2205; }
+        
+        /* Botón de enviar */
+        .btn-send { background: #7a2205; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.2s;}
+        .btn-send:hover { background: #4a1505; }
+        
+        /* El botón final de WhatsApp se mantiene verde para que el usuario reconozca la acción */
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.05rem; width: 100%; text-align: center; text-decoration: none; display: block; box-shadow: 0 4px 8px rgba(37,211,102,0.3); margin-top: 10px; transition: 0.2s; }
+        .btn-whatsapp:hover { background: #1ebe56; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="title">Bufete Aguilera Abogados</div>
+        <div class="subtitle">Derecho Familiar · Civil · Laboral · Penal · Mercantil</div>
+        <div class="status">Lic. Arthuro Aguilera Ochoa</div>
+    </div>
+    
+    <div class="chat-box" id="chatBox">
+        </div>
+
+    <div class="chat-input-area" id="inputArea" style="display: none;">
+        <input type="text" id="userInput" placeholder="Escribe tu respuesta aquí..." onkeypress="handleKeyPress(event)">
+        <button class="btn-send" onclick="sendText()">➔</button>
+    </div>
+</div>
+
+<script>
+    // DATOS DE CONTACTO CONFIGURADOS
+    const WHATSAPP_NUMBER = "524929428105"; 
+
+    const chatBox = document.getElementById('chatBox');
+    const inputArea = document.getElementById('inputArea');
+    const userInput = document.getElementById('userInput');
+
+    let step = 0;
+    let data = { nombre: '', telefono: '', materia: '', submateria: '', caso: '' };
+
+    // Submaterias / temas específicos por área legal
+    const SUBMATERIAS = {
+        'Familiar': ['Divorcio (voluntario o necesario)', 'Pensión alimenticia', 'Custodia / Régimen de convivencia', 'Reconocimiento de paternidad', 'Sucesiones y herencias', 'Otro asunto familiar'],
+        'Civil': ['Incumplimiento de contrato', 'Cobro de deudas', 'Arrendamiento', 'Compraventa / Bienes inmuebles', 'Responsabilidad civil / Daños', 'Otro asunto civil'],
+        'Laboral': ['Despido injustificado', 'Finiquito o liquidación', 'Falta de pago de salarios/prestaciones', 'Accidente de trabajo', 'Demanda ante la Junta/Tribunal Laboral', 'Otro asunto laboral'],
+        'Penal': ['Denuncia / Querella', 'Defensa en proceso penal', 'Amparo', 'Delitos patrimoniales (fraude, robo)', 'Violencia familiar', 'Otro asunto penal'],
+        'Mercantil': ['Cobro mercantil / Pagaré', 'Contratos comerciales', 'Constitución de sociedades', 'Conflicto entre socios', 'Juicio ejecutivo mercantil', 'Otro asunto mercantil']
+    };
+
+    window.onload = () => {
+        showBotMessage("¡Hola! Bienvenido al asistente virtual de <b>Bufete Aguilera Abogados</b>. ⚖️<br>Te haré unas breves preguntas para canalizar tu caso de la mejor manera con el Lic. Arthuro Aguilera Ochoa.");
+        setTimeout(askNombre, 1200);
+    };
+
+    function showBotMessage(text) {
+        const msg = document.createElement('div');
+        msg.className = 'msg bot';
+        msg.innerHTML = text;
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showUserMessage(text) {
+        const msg = document.createElement('div');
+        msg.className = 'msg user';
+        msg.innerText = text;
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showOptions(options, handler) {
+        const optionsHtml = `<div class="options-container">${
+            options.map(op => `<div class="btn-option" onclick="${handler}('${op.replace(/'/g, "\\'")}')">${op}</div>`).join('')
+        }</div>`;
+        const optionsDiv = document.createElement('div');
+        optionsDiv.innerHTML = optionsHtml;
+        chatBox.appendChild(optionsDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function askNombre() {
+        showBotMessage("Para comenzar, ¿cuál es tu <b>nombre completo</b>?");
+        inputArea.style.display = 'flex';
+        userInput.placeholder = "Escribe tu nombre completo...";
+        step = 1;
+    }
+
+    function askTelefono() {
+        inputArea.style.display = 'none';
+        showBotMessage("Gracias, " + data.nombre + ". ¿A qué <b>número telefónico</b> podemos contactarte para confirmar tu cita?");
+        inputArea.style.display = 'flex';
+        userInput.placeholder = "Ej. 492 000 0000";
+        step = 2;
+    }
+
+    function askMateria() {
+        inputArea.style.display = 'none';
+        showBotMessage("Perfecto. ¿En qué <b>área legal</b> requieres asesoría?");
+        showOptions(['Familiar', 'Civil', 'Laboral', 'Penal', 'Mercantil'], 'selectMateria');
+    }
+
+    function selectMateria(materia) {
+        data.materia = materia;
+        showUserMessage(materia);
+        document.querySelector('.options-container').remove();
+        setTimeout(askSubmateria, 900);
+    }
+
+    function askSubmateria() {
+        showBotMessage("Dentro del área de <b>" + data.materia + "</b>, ¿cuál de estos temas se relaciona más con tu situación?");
+        showOptions(SUBMATERIAS[data.materia], 'selectSubmateria');
+    }
+
+    function selectSubmateria(sub) {
+        data.submateria = sub;
+        showUserMessage(sub);
+        document.querySelector('.options-container').remove();
+        setTimeout(askCaso, 900);
+    }
+
+    function askCaso() {
+        showBotMessage("Por último, describe brevemente los <b>datos o hechos más relevantes</b> de tu caso (fechas, personas involucradas, situación actual, etc.):");
+        inputArea.style.display = 'flex';
+        userInput.placeholder = "Describe tu caso aquí...";
+        step = 4;
+    }
+
+    function endChat() {
+        inputArea.style.display = 'none';
+        showBotMessage("¡Perfecto, " + data.nombre.split(' ')[0] + "! He recopilado todos tus datos correctamente. ✅");
+        showBotMessage("Presiona el botón verde para enviar tu solicitud directamente al despacho por WhatsApp y agendar tu cita de valoración.");
+
+        const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Mensaje formateado y profesional que le llegará al Lic. Arthuro por WhatsApp
+        const mensajeWa = `*NUEVA SOLICITUD DE CONSULTA LEGAL*\n_Bufete Aguilera Abogados_\n\n` +
+            `*Fecha de solicitud:* ${fecha}\n` +
+            `*Nombre completo:* ${data.nombre}\n` +
+            `*Teléfono de contacto:* ${data.telefono}\n` +
+            `*Área legal:* ${data.materia}\n` +
+            `*Tema específico:* ${data.submateria}\n` +
+            `*Detalles del caso:*\n${data.caso}\n\n` +
+            `Quedo atento(a) para confirmar disponibilidad de cita con el Lic. Arthuro Aguilera Ochoa.`;
+
+        const urlEncode = encodeURIComponent(mensajeWa);
+        const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${urlEncode}`;
+
+        const btnLink = document.createElement('a');
+        btnLink.className = 'btn-whatsapp';
+        btnLink.href = waLink;
+        btnLink.target = '_blank';
+        btnLink.innerText = '🟢 Enviar solicitud por WhatsApp';
+
+        chatBox.appendChild(btnLink);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendText() {
+        const text = userInput.value.trim();
+        if(text === "") return;
+
+        showUserMessage(text);
+        userInput.value = "";
+
+        if (step === 1) {
+            data.nombre = text;
+            step = 0;
+            setTimeout(askTelefono, 900);
+        } else if (step === 2) {
+            data.telefono = text;
+            step = 0;
+            setTimeout(askMateria, 900);
+        } else if (step === 4) {
+            data.caso = text;
+            step = 0;
+            setTimeout(endChat, 900);
+        }
+    }
+
+    function handleKeyPress(e) {
+        if(e.key === 'Enter') sendText();
+    }
+</script>
+
+</body>
+</html>
