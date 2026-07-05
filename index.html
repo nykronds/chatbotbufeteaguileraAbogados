@@ -249,15 +249,22 @@
     const WHATSAPP_NUMBER = "524929428105";
 
     // ============================================================
-    // DISPONIBILIDAD DE CITAS (estilo Doctoralia)
-    // El admin puede modificar días y horarios libremente aquí.
+    // DÍAS DISPONIBLES PARA CITA
+    // El admin puede modificar estos días libremente aquí.
+    // La hora exacta se acuerda directamente por WhatsApp.
     // ============================================================
-    const DISPONIBILIDAD = {
-        'Lunes 7 de Julio':    ['10:00 AM', '12:00 PM', '4:00 PM'],
-        'Martes 8 de Julio':   ['9:00 AM', '11:30 AM', '5:00 PM'],
-        'Miércoles 9 de Julio':['10:00 AM', '1:00 PM', '6:00 PM'],
-        'Jueves 10 de Julio':  ['9:00 AM', '12:00 PM', '4:30 PM'],
-        'Viernes 11 de Julio': ['10:00 AM', '11:00 AM', '3:00 PM']
+    const DIAS_DISPONIBLES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+    // ============================================================
+    // TIPOS DE JUICIO Y SUS TEMAS ESPECÍFICOS
+    // El admin puede modificar estas listas libremente aquí.
+    // ============================================================
+    const SUBMATERIAS = {
+        'Juicios Familiares': ['Divorcio (voluntario o necesario)', 'Pensión alimenticia', 'Custodia / Régimen de convivencia', 'Reconocimiento de paternidad', 'Sucesiones y herencias', 'Otro asunto familiar'],
+        'Juicios Civiles': ['Incumplimiento de contrato', 'Cobro de deudas', 'Arrendamiento', 'Compraventa / Bienes inmuebles', 'Responsabilidad civil / Daños', 'Otro asunto civil'],
+        'Juicios Laborales': ['Despido injustificado', 'Finiquito o liquidación', 'Falta de pago de salarios/prestaciones', 'Accidente de trabajo', 'Demanda ante la Junta/Tribunal Laboral', 'Otro asunto laboral'],
+        'Juicios Penales': ['Denuncia / Querella', 'Defensa en proceso penal', 'Amparo', 'Delitos patrimoniales (fraude, robo)', 'Violencia familiar', 'Otro asunto penal'],
+        'Juicios Mercantiles': ['Cobro mercantil / Pagaré', 'Contratos comerciales', 'Constitución de sociedades', 'Conflicto entre socios', 'Juicio ejecutivo mercantil', 'Otro asunto mercantil']
     };
 
     const chatBox = document.getElementById('chatBox');
@@ -265,7 +272,7 @@
     const userInput = document.getElementById('userInput');
 
     let step = 0;
-    let data = { nombre: '', materia: '', caso: '', dia: '', hora: '' };
+    let data = { nombre: '', materia: '', submateria: '', caso: '', dia: '' };
 
     window.onload = () => {
         showBotMessage("¡Hola! Bienvenido al asistente virtual del <b>Bufete Aguilera Abogados</b>. ⚖️<br>Con gusto te ayudaré a canalizar tu caso con el Lic. Arthuro Aguilera Ochoa y a agendar tu cita.");
@@ -307,19 +314,31 @@
 
     function askMateria() {
         inputArea.style.display = 'none';
-        showBotMessage("Gracias, " + data.nombre + ". ¿Qué tipo de <b>asesoría</b> necesitas?");
-        showOptions(['Familiar (Divorcios, pensiones, custodia)', 'Civil o Mercantil (Contratos, pagarés, deudas)', 'Penal', 'Otro asunto'], 'selectMateria');
+        showBotMessage("Gracias, " + data.nombre + ". ¿Qué tipo de <b>juicio o asunto</b> necesitas atender?");
+        showOptions(Object.keys(SUBMATERIAS), 'selectMateria');
     }
 
     function selectMateria(materia) {
         data.materia = materia;
         showUserMessage(materia);
         document.querySelector('.options-container').remove();
+        setTimeout(askSubmateria, 900);
+    }
+
+    function askSubmateria() {
+        showBotMessage("Dentro de <b>" + data.materia + "</b>, ¿cuál de estos temas se relaciona más con tu situación?");
+        showOptions(SUBMATERIAS[data.materia], 'selectSubmateria');
+    }
+
+    function selectSubmateria(sub) {
+        data.submateria = sub;
+        showUserMessage(sub);
+        document.querySelector('.options-container').remove();
         setTimeout(askCaso, 900);
     }
 
     function askCaso() {
-        showBotMessage("Entendido. Por favor, describe brevemente tu <b>situación</b> para que el Lic. Aguilera pueda estar en contexto antes de la cita:");
+        showBotMessage("Entendido. Por favor, describe brevemente tu <b>situación</b> (fechas, personas involucradas, situación actual, etc.) para que el Lic. Aguilera pueda estar en contexto antes de la cita:");
         inputArea.style.display = 'flex';
         userInput.placeholder = "Describe tu caso aquí...";
         step = 3;
@@ -327,43 +346,31 @@
 
     function askDia() {
         inputArea.style.display = 'none';
-        showBotMessage("Perfecto, ya tengo el contexto de tu caso. Ahora agendemos tu cita. 📅<br>Estos son los <b>días disponibles</b> del despacho, ¿cuál te acomoda mejor?");
-        showOptions(Object.keys(DISPONIBILIDAD), 'selectDia');
+        showBotMessage("Perfecto, ya tengo el contexto de tu caso. Ahora agendemos tu cita. 📅<br>¿Qué <b>día de la semana</b> te acomoda mejor?");
+        showOptions(DIAS_DISPONIBLES, 'selectDia');
     }
 
     function selectDia(dia) {
         data.dia = dia;
         showUserMessage(dia);
         document.querySelector('.options-container').remove();
-        setTimeout(askHora, 900);
-    }
-
-    function askHora() {
-        showBotMessage("Muy bien. Para el <b>" + data.dia + "</b>, estos son los horarios disponibles:");
-        showOptions(DISPONIBILIDAD[data.dia], 'selectHora');
-    }
-
-    function selectHora(hora) {
-        data.hora = hora;
-        showUserMessage(hora);
-        document.querySelector('.options-container').remove();
         setTimeout(endChat, 900);
     }
 
     function endChat() {
         inputArea.style.display = 'none';
-        showBotMessage("¡Listo, " + data.nombre.split(' ')[0] + "! Tu espacio para el <b>" + data.dia + "</b> a las <b>" + data.hora + "</b> ha quedado <b>pre-reservado</b>. ✅");
+        showBotMessage("¡Listo, " + data.nombre.split(' ')[0] + "! Tu día preferido, <b>" + data.dia + "</b>, ha quedado <b>pre-reservado</b>. ✅<br>La hora exacta de tu cita se acordará directamente con el Licenciado por WhatsApp.");
         showBotMessage("Para finalizar y confirmar tu cita en la agenda del despacho, haz clic en el siguiente botón para enviar tu expediente directamente al WhatsApp personal del Licenciado.");
 
         // Enlace de WhatsApp con el formato exacto solicitado
         const mensajeWa = "Hola Licenciado, me gustaría confirmar una cita.\n\n" +
             "Datos del Cliente:\n" +
             "- Nombre: " + data.nombre + "\n" +
-            "- Asunto: " + data.materia + "\n" +
+            "- Asunto: " + data.materia + " - " + data.submateria + "\n" +
             "- Detalles: " + data.caso + "\n\n" +
             "Cita Solicitada:\n" +
             "- Día: " + data.dia + "\n" +
-            "- Hora: " + data.hora;
+            "- Hora: Por confirmar vía WhatsApp";
 
         const urlEncode = encodeURIComponent(mensajeWa);
         const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${urlEncode}`;
