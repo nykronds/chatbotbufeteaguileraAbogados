@@ -23,68 +23,100 @@
         html, body { height: 100%; overscroll-behavior: none; }
 
         /* En celular: la app ocupa toda la pantalla, sin marcos ni bordes de "página web" */
+        /* --app-h la calcula JS con window.innerHeight para evitar que la barra
+           del navegador (Safari/Chrome) corte el chat; 100vh/100dvh quedan como respaldo */
         body {
-            background-color: #2b1104;
+            background-color: #1c0a03;
+            background-image:
+                radial-gradient(ellipse at 50% -10%, rgba(158,54,17,0.35), transparent 60%),
+                radial-gradient(ellipse at 50% 110%, rgba(212,152,66,0.12), transparent 55%),
+                linear-gradient(180deg, #1c0a03 0%, #2b1104 50%, #1c0a03 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100dvh;
             height: 100vh;
+            height: 100dvh;
+            height: calc(var(--app-h, 100vh));
         }
 
         .chat-container {
             width: 100%;
             max-width: 450px;
-            height: 100dvh;
             height: 100vh;
+            height: 100dvh;
+            height: calc(var(--app-h, 100vh));
             background: #fff;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,152,66,0.25);
             overflow: hidden;
+            position: relative;
         }
 
-        /* En pantallas grandes (escritorio) se ve como una tarjeta tipo app centrada */
+        /* En pantallas grandes (escritorio) se ve como una tarjeta tipo app centrada, con marco dorado */
         @media (min-width: 480px) {
             body { padding: 20px; }
-            .chat-container { height: min(100dvh, 850px); border-radius: 28px; }
+            .chat-container { height: min(calc(var(--app-h, 100vh)), 850px); border-radius: 22px; border: 1px solid rgba(212,152,66,0.35); }
         }
 
         /* Encabezado con los colores caoba/rojo oscuro y dorado de la tarjeta, respeta el notch */
         .chat-header { 
-            background: linear-gradient(135deg, #4a1505 0%, #9e3611 50%, #4a1505 100%); 
+            background:
+                repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 26px),
+                radial-gradient(ellipse at 20% 0%, rgba(212,152,66,0.30), transparent 55%),
+                linear-gradient(135deg, #4a1505 0%, #7a2205 45%, #9e3611 65%, #5a1a06 100%);
             color: white; 
-            padding: calc(env(safe-area-inset-top, 0px) + 15px) 15px 15px 15px; 
+            padding: calc(env(safe-area-inset-top, 0px) + 20px) 18px 18px 18px; 
             display: flex; 
             flex-direction: column; 
-            gap: 2px;
+            align-items: center;
+            gap: 3px;
             text-align: center;
-            border-bottom: 3px solid #d49842; /* Línea dorada */
+            position: relative;
             flex-shrink: 0;
         }
-        
+
+        /* Borde inferior dorado con efecto de doble línea, estilo grabado premium */
+        .chat-header::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #d49842 15%, #f7d299 50%, #d49842 85%, transparent);
+        }
+
+        /* Emblema dorado (balanza de la justicia dibujada en SVG, no foto) */
+        .chat-header .emblem { margin-bottom: 6px; opacity: 0.95; }
+        .chat-header .emblem svg { width: 34px; height: 34px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+
         /* Fuente Serif para el título, como en la tarjeta */
         .chat-header .title { 
             font-family: 'Playfair Display', serif; 
             font-weight: bold; 
-            font-size: 1.4rem; 
+            font-size: 1.45rem; 
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
         }
         
         .chat-header .subtitle { 
             font-family: 'Playfair Display', serif;
-            font-size: 0.95rem; 
+            font-size: 0.88rem; 
             color: #f7d299; /* Tono dorado claro */
             font-weight: 500; 
+            letter-spacing: 0.4px;
         }
+
+        /* Divisor ornamental dorado con rombo central, detalle premium */
+        .chat-header .ornament { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 220px; margin: 6px 0 2px; }
+        .chat-header .ornament .line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,152,66,0.8)); }
+        .chat-header .ornament .line.right { background: linear-gradient(90deg, rgba(212,152,66,0.8), transparent); }
+        .chat-header .ornament .diamond { width: 6px; height: 6px; background: #d49842; transform: rotate(45deg); flex-shrink: 0; }
         
         /* Fuente cursiva para el nombre del Licenciado, idéntico a la tarjeta */
         .chat-header .status { 
             font-family: 'Dancing Script', cursive; 
-            font-size: 1.4rem; 
+            font-size: 1.5rem; 
             color: #ffffff; 
-            margin-top: 5px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
         
@@ -96,17 +128,19 @@
             display: flex; 
             flex-direction: column; 
             gap: 15px; 
-            background-color: #f9f6f0; 
+            background-color: #f9f6f0;
+            background-image: radial-gradient(rgba(122,34,5,0.055) 1px, transparent 1px);
+            background-size: 18px 18px;
         }
         
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; }
         
         /* Mensajes del Bot (Blancos con borde caoba) */
         .msg.bot { 
             background: white; 
             align-self: flex-start; 
             border-top-left-radius: 0; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(74,21,5,0.08);
             border-left: 4px solid #7a2205;
         }
         
@@ -116,7 +150,7 @@
             color: #2b1104;
             align-self: flex-end; 
             border-top-right-radius: 0; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(74,21,5,0.08);
             border-right: 4px solid #4a1505;
         }
         
@@ -138,9 +172,10 @@
         
         .btn-option:hover,
         .btn-option:active { 
-            background: #7a2205; 
+            background: linear-gradient(135deg, #7a2205, #9e3611); 
             color: white; 
-            box-shadow: 0 3px 6px rgba(122,34,5,0.3);
+            border-color: #d49842;
+            box-shadow: 0 3px 10px rgba(122,34,5,0.35);
         }
         
         .chat-input-area {
@@ -149,19 +184,19 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid #ecdfc9;
             flex-shrink: 0;
         }
         /* Evita el zoom automático de iOS al enfocar el input (mínimo 16px) */
-        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 16px; background: #f9f9f9; -webkit-appearance: none; }
-        input[type="text"]:focus { border-color: #7a2205; }
+        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ddd0b0; border-radius: 25px; outline: none; font-size: 16px; background: #fbf9f4; -webkit-appearance: none; }
+        input[type="text"]:focus { border-color: #7a2205; box-shadow: 0 0 0 3px rgba(122,34,5,0.08); }
         
-        /* Botón de enviar */
-        .btn-send { background: #7a2205; color: white; border: none; width: 45px; height: 45px; min-width: 45px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.2s; touch-action: manipulation; }
-        .btn-send:active { background: #4a1505; transform: scale(0.94); }
+        /* Botón de enviar, acabado dorado/caoba tipo premium */
+        .btn-send { background: linear-gradient(135deg, #9e3611, #7a2205); color: #f7d299; border: 1px solid #d49842; width: 45px; height: 45px; min-width: 45px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.2s; touch-action: manipulation; }
+        .btn-send:active { background: linear-gradient(135deg, #7a2205, #4a1505); transform: scale(0.94); }
         
-        /* El botón final de WhatsApp se mantiene verde para que el usuario reconozca la acción */
-        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.05rem; width: 100%; text-align: center; text-decoration: none; display: block; box-shadow: 0 4px 8px rgba(37,211,102,0.3); margin-top: 10px; transition: 0.2s; touch-action: manipulation; }
+        /* El botón final de WhatsApp se mantiene verde para que el usuario reconozca la acción, con toque dorado sutil */
+        .btn-whatsapp { background: #25d366; color: white; border: 1px solid rgba(212,152,66,0.5); padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.05rem; width: 100%; text-align: center; text-decoration: none; display: block; box-shadow: 0 4px 10px rgba(37,211,102,0.35); margin-top: 10px; transition: 0.2s; touch-action: manipulation; }
         .btn-whatsapp:hover { background: #1ebe56; transform: translateY(-2px); }
         .btn-whatsapp:active { background: #1ebe56; transform: scale(0.98); }
     </style>
@@ -170,8 +205,19 @@
 
 <div class="chat-container">
     <div class="chat-header">
+        <div class="emblem">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2V22" stroke="#d49842" stroke-width="1.3"/>
+                <path d="M4 22H20" stroke="#d49842" stroke-width="1.3" stroke-linecap="round"/>
+                <path d="M12 4L5 6.5M12 4L19 6.5" stroke="#d49842" stroke-width="1.3" stroke-linecap="round"/>
+                <path d="M5 6.5L2 12.5C2 12.5 3.2 14.5 5 14.5C6.8 14.5 8 12.5 8 12.5L5 6.5Z" stroke="#f7d299" stroke-width="1.1" stroke-linejoin="round"/>
+                <path d="M19 6.5L16 12.5C16 12.5 17.2 14.5 19 14.5C20.8 14.5 22 12.5 22 12.5L19 6.5Z" stroke="#f7d299" stroke-width="1.1" stroke-linejoin="round"/>
+                <circle cx="12" cy="3" r="1.4" fill="#d49842"/>
+            </svg>
+        </div>
         <div class="title">Bufete Aguilera Abogados</div>
         <div class="subtitle">Derecho Familiar · Civil · Laboral · Penal · Mercantil</div>
+        <div class="ornament"><span class="line"></span><span class="diamond"></span><span class="line right"></span></div>
         <div class="status">Lic. Arthuro Aguilera Ochoa</div>
     </div>
     
@@ -185,6 +231,18 @@
 </div>
 
 <script>
+    // Corrige el alto real de la pantalla en móvil (la barra de direcciones de
+    // Safari/Chrome hace que 100vh no coincida con el alto visible real)
+    function setAppHeight() {
+        document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
+    }
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', setAppHeight);
+    }
+
     // DATOS DE CONTACTO CONFIGURADOS
     const WHATSAPP_NUMBER = "524929428105"; 
 
