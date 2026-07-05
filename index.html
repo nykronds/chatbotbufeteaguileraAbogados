@@ -2,31 +2,65 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bufete Aguilera Abogados - Asistente Virtual</title>
-    
+
+    <!-- Meta tags para que se sienta como app nativa al abrirla o agregarla a pantalla de inicio -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bufete Aguilera">
+    <meta name="theme-color" content="#4a1505">
+    <meta name="format-detection" content="telephone=no">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@700&family=Segoe+UI&display=swap" rel="stylesheet">
 
     <style>
-        * { box-shadow: none; box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Fondo exterior oscuro simulando los bordes de la tarjeta */
-        body { background-color: #2b1104; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
-        .chat-container { width: 100%; max-width: 450px; height: 100vh; background: #fff; display: flex; flex-direction: column; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-        
-        /* Encabezado con los colores caoba/rojo oscuro y dorado de la tarjeta */
+        * { box-shadow: none; box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        html, body { height: 100%; overscroll-behavior: none; }
+
+        /* En celular: la app ocupa toda la pantalla, sin marcos ni bordes de "página web" */
+        body {
+            background-color: #2b1104;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100dvh;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100dvh;
+            height: 100vh;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* En pantallas grandes (escritorio) se ve como una tarjeta tipo app centrada */
+        @media (min-width: 480px) {
+            body { padding: 20px; }
+            .chat-container { height: min(100dvh, 850px); border-radius: 28px; }
+        }
+
+        /* Encabezado con los colores caoba/rojo oscuro y dorado de la tarjeta, respeta el notch */
         .chat-header { 
             background: linear-gradient(135deg, #4a1505 0%, #9e3611 50%, #4a1505 100%); 
             color: white; 
-            padding: 15px; 
+            padding: calc(env(safe-area-inset-top, 0px) + 15px) 15px 15px 15px; 
             display: flex; 
             flex-direction: column; 
             gap: 2px;
             text-align: center;
             border-bottom: 3px solid #d49842; /* Línea dorada */
+            flex-shrink: 0;
         }
         
         /* Fuente Serif para el título, como en la tarjeta */
@@ -93,31 +127,43 @@
             background: #fff; 
             border: 2px solid #7a2205; 
             color: #7a2205; 
-            padding: 10px 15px; 
+            padding: 12px 15px; 
             border-radius: 20px; 
             cursor: pointer; 
             font-weight: 600; 
             text-align: center; 
-            transition: 0.3s; 
+            transition: 0.15s;
+            touch-action: manipulation;
         }
         
-        .btn-option:hover { 
+        .btn-option:hover,
+        .btn-option:active { 
             background: #7a2205; 
             color: white; 
             box-shadow: 0 3px 6px rgba(122,34,5,0.3);
         }
         
-        .chat-input-area { padding: 12px; background: #ffffff; display: flex; gap: 10px; align-items: center; border-top: 1px solid #ddd; }
-        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 0.95rem; background: #f9f9f9; }
+        .chat-input-area {
+            padding: 12px 12px calc(env(safe-area-inset-bottom, 0px) + 12px) 12px;
+            background: #ffffff;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-top: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+        /* Evita el zoom automático de iOS al enfocar el input (mínimo 16px) */
+        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 16px; background: #f9f9f9; -webkit-appearance: none; }
         input[type="text"]:focus { border-color: #7a2205; }
         
         /* Botón de enviar */
-        .btn-send { background: #7a2205; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.2s;}
-        .btn-send:hover { background: #4a1505; }
+        .btn-send { background: #7a2205; color: white; border: none; width: 45px; height: 45px; min-width: 45px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.2s; touch-action: manipulation; }
+        .btn-send:active { background: #4a1505; transform: scale(0.94); }
         
         /* El botón final de WhatsApp se mantiene verde para que el usuario reconozca la acción */
-        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.05rem; width: 100%; text-align: center; text-decoration: none; display: block; box-shadow: 0 4px 8px rgba(37,211,102,0.3); margin-top: 10px; transition: 0.2s; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.05rem; width: 100%; text-align: center; text-decoration: none; display: block; box-shadow: 0 4px 8px rgba(37,211,102,0.3); margin-top: 10px; transition: 0.2s; touch-action: manipulation; }
         .btn-whatsapp:hover { background: #1ebe56; transform: translateY(-2px); }
+        .btn-whatsapp:active { background: #1ebe56; transform: scale(0.98); }
     </style>
 </head>
 <body>
