@@ -253,7 +253,7 @@
     // El admin puede modificar estas listas libremente aquí.
     // ============================================================
     const SUBMATERIAS = {
-        'Juicios Familiares': ['Divorcio', 'Pensión alimenticia', 'Custodia / Régimen de convivencia', 'Reconocimiento de paternidad', 'Sucesiones y herencias', 'Otro asunto familiar'],
+        'Juicios Familiares': ['Pensión alimenticia', 'Custodia / Régimen de convivencia', 'Reconocimiento de paternidad', 'Sucesiones y herencias', 'Otro asunto familiar'],
         'Juicios Civiles': ['Incumplimiento de contrato', 'Cobro de deudas', 'Arrendamiento', 'Compraventa / Bienes inmuebles', 'Responsabilidad civil / Daños', 'Otro asunto civil'],
         'Juicios Laborales': ['Despido injustificado', 'Finiquito o liquidación', 'Falta de pago de salarios/prestaciones', 'Accidente de trabajo', 'Demanda ante la Junta/Tribunal Laboral', 'Otro asunto laboral'],
         'Juicios Penales': ['Denuncia / Querella', 'Defensa en proceso penal', 'Amparo', 'Delitos patrimoniales (fraude, robo)', 'Violencia familiar', 'Otro asunto penal'],
@@ -305,17 +305,30 @@
         step = 1;
     }
 
+    // ============================================================
+    // MENÚ PRINCIPAL
+    // "Divorcio" se muestra como opción propia (fuera de Juicios Familiares)
+    // y va directo a la pregunta de tipo de divorcio.
+    // ============================================================
+    const MENU_PRINCIPAL = ['Divorcio', ...Object.keys(SUBMATERIAS)];
+
     function askMateria() {
         inputArea.style.display = 'none';
         showBotMessage("Gracias, " + data.nombre + ". ¿Qué tipo de <b>juicio o asunto</b> necesitas atender?");
-        showOptions(Object.keys(SUBMATERIAS), 'selectMateria');
+        showOptions(MENU_PRINCIPAL, 'selectMateria');
     }
 
     function selectMateria(materia) {
         data.materia = materia;
         showUserMessage(materia);
         document.querySelector('.options-container').remove();
-        setTimeout(askSubmateria, 900);
+
+        if (materia === 'Divorcio') {
+            data.submateria = 'Divorcio';
+            setTimeout(askTipoDivorcio, 900);
+        } else {
+            setTimeout(askSubmateria, 900);
+        }
     }
 
     function askSubmateria() {
@@ -327,12 +340,7 @@
         data.submateria = sub;
         showUserMessage(sub);
         document.querySelector('.options-container').remove();
-
-        if (sub === 'Divorcio') {
-            setTimeout(askTipoDivorcio, 900);
-        } else {
-            setTimeout(askCaso, 900);
-        }
+        setTimeout(askCaso, 900);
     }
 
     // ============================================================
@@ -385,7 +393,7 @@
 
         // Enlace de WhatsApp con el formato exacto solicitado
         const asuntoLinea = data.tipoDivorcio
-            ? "- Asunto: " + data.materia + " - " + data.submateria + " (" + data.tipoDivorcio + ")\n"
+            ? "- Asunto: " + data.materia + " (" + data.tipoDivorcio + ")\n"
             : "- Asunto: " + data.materia + " - " + data.submateria + "\n";
 
         const mensajeWa = "Hola Licenciado, me gustaría confirmar una cita.\n\n" +
