@@ -101,6 +101,16 @@
             letter-spacing: 0.6px;
         }
         
+        .chat-header .subtitle-connector {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.8rem;
+            color: #ffffff;
+            opacity: 0.9;
+            margin: 2px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+        }
+
         .chat-header .subtitle { 
             font-family: 'Playfair Display', serif;
             font-size: 0.88rem; 
@@ -209,6 +219,7 @@
 <div class="chat-container">
     <div class="chat-header">
         <div class="title">Bufete Aguilera Abogados</div>
+        <div class="subtitle-connector">en</div>
         <div class="subtitle">Derecho Familiar · Civil · Laboral · Penal · Mercantil</div>
         <div class="ornament"><span class="line"></span><span class="diamond"></span><span class="line right"></span></div>
         <div class="status">Lic. Arthuro Aguilera Ochoa</div>
@@ -266,6 +277,7 @@
 
     let step = 0;
     let data = { nombre: '', materia: '', submateria: '', tipoDivorcio: '', caso: '', dia: '' };
+    let otroConfirmado = false; // Controla el doble clic del botón "Otro" del menú principal
 
     window.onload = () => {
         showBotMessage("¡Hola! Bienvenido al asistente virtual del <b>Bufete Aguilera Abogados</b>. ⚖️<br>Con gusto te ayudaré a canalizar tu caso con el Lic. Arthuro Aguilera Ochoa y a agendar tu cita.");
@@ -310,7 +322,7 @@
     // "Divorcio" se muestra como opción propia (fuera de Juicios Familiares)
     // y va directo a la pregunta de tipo de divorcio.
     // ============================================================
-    const MENU_PRINCIPAL = ['Divorcio', ...Object.keys(SUBMATERIAS)];
+    const MENU_PRINCIPAL = ['Divorcio', ...Object.keys(SUBMATERIAS), 'Otro'];
 
     function askMateria() {
         inputArea.style.display = 'none';
@@ -319,6 +331,26 @@
     }
 
     function selectMateria(materia) {
+        // ============================================================
+        // BOTÓN "OTRO": requiere doble clic.
+        // 1er clic -> explica qué hacer si el usuario desconoce su caso.
+        // 2do clic -> permite escribir el caso libremente y continúa
+        //             igual que las demás opciones (agenda su cita y día).
+        // ============================================================
+        if (materia === 'Otro') {
+            if (!otroConfirmado) {
+                otroConfirmado = true;
+                showBotMessage("Si desconoces con exactitud el tipo de juicio o asunto, no hay problema. Vuelve a dar clic en el botón <b>Otro</b> y cuéntanos tu caso con tus propias palabras.");
+                return;
+            }
+            data.materia = 'Otro';
+            data.submateria = 'Otro (descrito por el usuario)';
+            showUserMessage(materia);
+            document.querySelector('.options-container').remove();
+            setTimeout(askCaso, 900);
+            return;
+        }
+
         data.materia = materia;
         showUserMessage(materia);
         document.querySelector('.options-container').remove();
