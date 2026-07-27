@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Bufete Aguilera Abogados - Asistente Virtual</title>
 
     <!-- Meta tags para que se sienta como app nativa al abrirla o agregarla a pantalla de inicio -->
@@ -181,6 +181,9 @@
             text-align: center; 
             transition: 0.15s;
             touch-action: manipulation;
+            font-family: inherit;
+            font-size: 0.95rem;
+            width: 100%;
         }
         
         .btn-option:hover,
@@ -189,6 +192,126 @@
             color: white; 
             border-color: #d49842;
             box-shadow: 0 3px 10px rgba(122,34,5,0.35);
+        }
+
+        .btn-option:focus-visible {
+            outline: 3px solid #d49842;
+            outline-offset: 2px;
+        }
+
+        /* Botón "Regresar" con estilo más discreto que las opciones normales */
+        .btn-back {
+            background: transparent;
+            border: 1.5px dashed #b08968;
+            color: #7a2205;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.85;
+            transition: 0.15s;
+            touch-action: manipulation;
+            font-family: inherit;
+            width: 100%;
+        }
+        .btn-back:hover, .btn-back:active { opacity: 1; background: rgba(122,34,5,0.06); }
+
+        /* Botón "Atrás" pequeño junto al input de texto */
+        .btn-back-input {
+            background: #fff;
+            border: 1.5px solid #b08968;
+            color: #7a2205;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+        }
+        .btn-back-input.visible { display: flex; }
+
+        /* Indicador de "escribiendo..." del bot */
+        .msg.typing { display: flex; gap: 4px; align-items: center; padding: 14px 18px; }
+        .msg.typing .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #7a2205; opacity: 0.4;
+            animation: typingBounce 1.1s infinite ease-in-out;
+        }
+        .msg.typing .dot:nth-child(2) { animation-delay: 0.15s; }
+        .msg.typing .dot:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        /* Contador de caracteres bajo el input, para animar a dar más contexto */
+        .char-counter {
+            font-size: 0.72rem;
+            color: #a08a6a;
+            text-align: right;
+            padding: 2px 14px 0 0;
+            display: none;
+        }
+        .char-counter.visible { display: block; }
+        .char-counter.ok { color: #4a8a3a; }
+
+        /* Tarjeta resumen antes de confirmar por WhatsApp */
+        .summary-card {
+            background: #fffaf0;
+            border: 2px solid #d49842;
+            border-radius: 14px;
+            padding: 16px 18px;
+            max-width: 90%;
+            align-self: center;
+            width: 100%;
+            box-shadow: 0 3px 10px rgba(74,21,5,0.1);
+            font-size: 0.9rem;
+            color: #4a1505;
+        }
+        .summary-card h4 {
+            font-family: 'Playfair Display', serif;
+            color: #7a2205;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .summary-card .row { display: flex; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #e5d3ac; }
+        .summary-card .row:last-child { border-bottom: none; }
+        .summary-card .row b { min-width: 80px; color: #7a2205; }
+
+        /* Botón para copiar el mensaje de WhatsApp como respaldo */
+        .btn-copy {
+            background: #fff;
+            border: 1.5px solid #7a2205;
+            color: #7a2205;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            width: 100%;
+            text-align: center;
+            margin-top: 8px;
+            touch-action: manipulation;
+            font-family: inherit;
+        }
+        .btn-copy:active { background: #f5e4c3; }
+
+        /* Pantalla de "continuar donde te quedaste" */
+        .resume-banner {
+            background: #fffaf0;
+            border: 1.5px solid #d49842;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #7a2205;
+            text-align: center;
         }
         
         .chat-input-area {
@@ -228,23 +351,29 @@
     <div class="chat-box" id="chatBox">
         </div>
 
+    <div class="char-counter" id="charCounter"></div>
     <div class="chat-input-area" id="inputArea" style="display: none;">
-        <input type="text" id="userInput" placeholder="Escribe tu respuesta aquí..." onkeypress="handleKeyPress(event)">
-        <button class="btn-send" onclick="sendText()">➔</button>
+        <button class="btn-back-input" id="btnBackInput" onclick="goBack()" aria-label="Regresar al paso anterior">⬅</button>
+        <input type="text" id="userInput" placeholder="Escribe tu respuesta aquí..." onkeypress="handleKeyPress(event)" oninput="updateCharCounter()">
+        <button class="btn-send" onclick="sendText()" aria-label="Enviar">➔</button>
     </div>
 </div>
 
 <script>
     // Corrige el alto real de la pantalla en móvil (la barra de direcciones de
-    // Safari/Chrome hace que 100vh no coincida con el alto visible real)
+    // Safari/Chrome hace que 100vh no coincida con el alto visible real).
+    // Se usa visualViewport cuando existe: refleja el alto visible real
+    // cuando el teclado está abierto, evitando que tape el chat.
     function setAppHeight() {
-        document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
+        const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+        document.documentElement.style.setProperty('--app-h', h + 'px');
     }
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', setAppHeight);
+        window.visualViewport.addEventListener('scroll', setAppHeight);
     }
 
     // ============================================================
@@ -279,10 +408,120 @@
     let data = { nombre: '', materia: '', submateria: '', tipoDivorcio: '', caso: '', dia: '' };
     let otroConfirmado = false; // Controla el doble clic del botón "Otro" del menú principal
 
-    window.onload = () => {
-        showBotMessage("¡Hola! Bienvenido al asistente virtual del <b>Bufete Aguilera Abogados</b>. ⚖️<br>Con gusto te ayudaré a canalizar tu caso con el Lic. Arthuro Aguilera Ochoa y a agendar tu cita.");
-        setTimeout(askNombre, 1200);
+    // ============================================================
+    // MEJORA 4: GUARDAR PROGRESO EN EL CELULAR DEL USUARIO
+    // Se guarda en localStorage cada que el usuario avanza de paso,
+    // para que si cierra el navegador pueda continuar donde se quedó.
+    // ============================================================
+    const STORAGE_KEY = 'bufeteAguileraProgreso';
+
+    function guardarProgreso(nombrePaso) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ paso: nombrePaso, data: data }));
+        } catch (e) { /* almacenamiento no disponible, se ignora silenciosamente */ }
+    }
+
+    function borrarProgreso() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    }
+
+    function cargarProgresoGuardado() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+    }
+
+    // Mapa de nombre de paso -> función que lo vuelve a mostrar
+    const RENDER_PASO = {
+        nombre: askNombre,
+        materia: askMateria,
+        submateria: askSubmateria,
+        tipoDivorcio: askTipoDivorcio,
+        caso: askCaso,
+        dia: askDia
     };
+
+    // ============================================================
+    // MEJORA 2: BOTÓN "ATRÁS"
+    // Cada vez que se avanza de un paso a otro se guarda en esta pila
+    // el paso anterior, para poder regresar sin perder los datos ya
+    // capturados.
+    // ============================================================
+    let backStack = [];
+
+    function goBack() {
+        if (backStack.length === 0) return;
+        const pasoPrevio = backStack.pop();
+        const existingOptions = document.querySelector('.options-container');
+        if (existingOptions) existingOptions.remove();
+        RENDER_PASO[pasoPrevio]();
+    }
+
+    function actualizarBotonAtras() {
+        const btn = document.getElementById('btnBackInput');
+        if (!btn) return;
+        if (backStack.length > 0) btn.classList.add('visible');
+        else btn.classList.remove('visible');
+    }
+
+    // ============================================================
+    // MEJORA 5: INDICADOR DE "ESCRIBIENDO..."
+    // Sustituye los setTimeout sueltos por una burbuja animada mientras
+    // "escribe" el bot, para que la conversación se sienta más natural.
+    // ============================================================
+    function showTyping() {
+        const msg = document.createElement('div');
+        msg.className = 'msg bot typing';
+        msg.id = 'typingIndicator';
+        msg.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTyping() {
+        const t = document.getElementById('typingIndicator');
+        if (t) t.remove();
+    }
+
+    function avanzarConTyping(fn, delay) {
+        showTyping();
+        setTimeout(() => { hideTyping(); fn(); }, delay);
+    }
+
+    window.onload = () => {
+        const guardado = cargarProgresoGuardado();
+        if (guardado && guardado.paso && RENDER_PASO[guardado.paso]) {
+            showBotMessage("¡Hola de nuevo! 👋 Encontramos una cita que dejaste a medias.");
+            const banner = document.createElement('div');
+            banner.className = 'resume-banner';
+            banner.innerText = "¿Deseas continuar donde te quedaste o empezar de nuevo?";
+            chatBox.appendChild(banner);
+            showOptions(['Continuar donde me quedé', 'Empezar de nuevo'], 'resolverProgresoGuardado');
+            window._progresoGuardadoTemp = guardado;
+        } else {
+            showBotMessage("¡Hola! Bienvenido al asistente virtual del <b>Bufete Aguilera Abogados</b>. ⚖️<br>Con gusto te ayudaré a canalizar tu caso con el Lic. Arthuro Aguilera Ochoa y a agendar tu cita.");
+            setTimeout(askNombre, 1200);
+        }
+    };
+
+    function resolverProgresoGuardado(opcion) {
+        showUserMessage(opcion);
+        document.querySelector('.options-container').remove();
+
+        if (opcion === 'Continuar donde me quedé') {
+            const guardado = window._progresoGuardadoTemp;
+            data = guardado.data;
+            setTimeout(() => RENDER_PASO[guardado.paso](), 900);
+        } else {
+            borrarProgreso();
+            data = { nombre: '', materia: '', submateria: '', tipoDivorcio: '', caso: '', dia: '' };
+            backStack = [];
+            otroConfirmado = false;
+            showBotMessage("¡Perfecto! Empecemos de nuevo. Bienvenido al asistente virtual del <b>Bufete Aguilera Abogados</b>. ⚖️");
+            setTimeout(askNombre, 900);
+        }
+    }
 
     function showBotMessage(text) {
         const msg = document.createElement('div');
@@ -302,8 +541,8 @@
 
     function showOptions(options, handler) {
         const optionsHtml = `<div class="options-container">${
-            options.map(op => `<div class="btn-option" onclick="${handler}('${op.replace(/'/g, "\\'")}')">${op}</div>`).join('')
-        }</div>`;
+            options.map(op => `<button type="button" class="btn-option" onclick="${handler}('${op.replace(/'/g, "\\'")}')">${op}</button>`).join('')
+        }${ backStack.length > 0 ? `<button type="button" class="btn-back" onclick="goBack()">⬅ Regresar</button>` : '' }</div>`;
         const optionsDiv = document.createElement('div');
         optionsDiv.innerHTML = optionsHtml;
         chatBox.appendChild(optionsDiv);
@@ -314,7 +553,12 @@
         showBotMessage("Para comenzar, ¿cuál es tu <b>nombre completo</b>?");
         inputArea.style.display = 'flex';
         userInput.placeholder = "Escribe tu nombre completo...";
+        userInput.value = data.nombre || '';
         step = 1;
+        guardarProgreso('nombre');
+        actualizarBotonAtras();
+        actualizarContadorVisibilidad();
+        setTimeout(() => userInput.focus(), 300);
     }
 
     // ============================================================
@@ -328,6 +572,7 @@
         inputArea.style.display = 'none';
         showBotMessage("Gracias, " + data.nombre + ". ¿Qué tipo de <b>juicio o asunto</b> necesitas atender?");
         showOptions(MENU_PRINCIPAL, 'selectMateria');
+        guardarProgreso('materia');
     }
 
     function selectMateria(materia) {
@@ -347,32 +592,36 @@
             data.submateria = 'Otro (descrito por el usuario)';
             showUserMessage(materia);
             document.querySelector('.options-container').remove();
-            setTimeout(askCaso, 900);
+            backStack.push('materia');
+            avanzarConTyping(askCaso, 900);
             return;
         }
 
         data.materia = materia;
         showUserMessage(materia);
         document.querySelector('.options-container').remove();
+        backStack.push('materia');
 
         if (materia === 'Divorcio') {
             data.submateria = 'Divorcio';
-            setTimeout(askTipoDivorcio, 900);
+            avanzarConTyping(askTipoDivorcio, 900);
         } else {
-            setTimeout(askSubmateria, 900);
+            avanzarConTyping(askSubmateria, 900);
         }
     }
 
     function askSubmateria() {
         showBotMessage("Dentro de <b>" + data.materia + "</b>, ¿cuál de estos temas se relaciona más con tu situación?");
         showOptions(SUBMATERIAS[data.materia], 'selectSubmateria');
+        guardarProgreso('submateria');
     }
 
     function selectSubmateria(sub) {
         data.submateria = sub;
         showUserMessage(sub);
         document.querySelector('.options-container').remove();
-        setTimeout(askCaso, 900);
+        backStack.push('submateria');
+        avanzarConTyping(askCaso, 900);
     }
 
     // ============================================================
@@ -382,6 +631,7 @@
     function askTipoDivorcio() {
         showBotMessage("Para orientar mejor tu caso, ¿de qué <b>tipo de divorcio</b> se trata?");
         showOptions(['Divorcio Voluntario', 'Divorcio Necesario'], 'selectTipoDivorcio');
+        guardarProgreso('tipoDivorcio');
     }
 
     function selectTipoDivorcio(tipo) {
@@ -395,32 +645,86 @@
             showBotMessage("Entendido. El <b>divorcio necesario</b> es aquel en el que no hay acuerdo entre las partes, por lo que se tramita ante un juez y puede involucrar una causal específica. Requiere un litigio más detallado.");
         }
 
-        setTimeout(askCaso, 1400);
+        backStack.push('tipoDivorcio');
+        avanzarConTyping(askCaso, 1400);
     }
 
     function askCaso() {
         showBotMessage("Entendido. Por favor, describe brevemente tu <b>situación</b> (fechas, personas involucradas, situación actual, etc.) para que el Lic. Aguilera pueda estar en contexto antes de la cita:");
         inputArea.style.display = 'flex';
         userInput.placeholder = "Describe tu caso aquí...";
+        userInput.value = data.caso || '';
         step = 3;
+        guardarProgreso('caso');
+        actualizarBotonAtras();
+        actualizarContadorVisibilidad();
+        setTimeout(() => userInput.focus(), 300);
+    }
+
+    // ============================================================
+    // MEJORA 7: CONTADOR DE CARACTERES
+    // Solo se muestra mientras el usuario describe su caso (step 3),
+    // para animarlo a dar más contexto antes de la cita.
+    // ============================================================
+    const charCounterEl = document.getElementById('charCounter');
+    const MIN_CARACTERES_RECOMENDADOS = 20;
+
+    function actualizarContadorVisibilidad() {
+        if (!charCounterEl) return;
+        if (step === 3) {
+            charCounterEl.classList.add('visible');
+            updateCharCounter();
+        } else {
+            charCounterEl.classList.remove('visible');
+        }
+    }
+
+    function updateCharCounter() {
+        if (!charCounterEl || step !== 3) return;
+        const len = userInput.value.trim().length;
+        charCounterEl.innerText = len + " caracteres" + (len < MIN_CARACTERES_RECOMENDADOS ? " (recomendado: al menos " + MIN_CARACTERES_RECOMENDADOS + ")" : " ✓");
+        charCounterEl.classList.toggle('ok', len >= MIN_CARACTERES_RECOMENDADOS);
     }
 
     function askDia() {
         inputArea.style.display = 'none';
         showBotMessage("Perfecto, ya tengo el contexto de tu caso. Ahora agendemos tu cita. 📅<br>¿Qué <b>día de la semana</b> te acomoda mejor?");
         showOptions(DIAS_DISPONIBLES, 'selectDia');
+        guardarProgreso('dia');
     }
 
     function selectDia(dia) {
         data.dia = dia;
         showUserMessage(dia);
         document.querySelector('.options-container').remove();
-        setTimeout(endChat, 900);
+        backStack.push('dia');
+        avanzarConTyping(endChat, 900);
     }
 
     function endChat() {
         inputArea.style.display = 'none';
         showBotMessage("¡Listo, " + data.nombre.split(' ')[0] + "! Tu día preferido, <b>" + data.dia + "</b>, ha quedado <b>pre-reservado</b>. ✅<br>La hora exacta de tu cita se acordará directamente con el Licenciado por WhatsApp.");
+
+        // ============================================================
+        // MEJORA 8: TARJETA RESUMEN
+        // Para que el usuario revise sus datos antes de confirmar.
+        // ============================================================
+        const asuntoResumen = data.tipoDivorcio
+            ? data.materia + " (" + data.tipoDivorcio + ")"
+            : data.materia + " - " + data.submateria;
+
+        const summaryCard = document.createElement('div');
+        summaryCard.className = 'summary-card';
+        summaryCard.innerHTML = `
+            <h4>📋 Resumen de tu cita</h4>
+            <div class="row"><b>Nombre:</b><span>${data.nombre}</span></div>
+            <div class="row"><b>Asunto:</b><span>${asuntoResumen}</span></div>
+            <div class="row"><b>Detalles:</b><span>${data.caso}</span></div>
+            <div class="row"><b>Día:</b><span>${data.dia}</span></div>
+        `;
+        chatBox.appendChild(summaryCard);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
         showBotMessage("Para finalizar y confirmar tu cita en la agenda del despacho, haz clic en el siguiente botón para enviar tu expediente directamente al WhatsApp personal del Licenciado.");
 
         // Enlace de WhatsApp con el formato exacto solicitado
@@ -447,14 +751,70 @@
         btnLink.innerText = '🟢 Confirmar cita por WhatsApp';
 
         chatBox.appendChild(btnLink);
+
+        // ============================================================
+        // MEJORA 3: RESPALDO SI NO ABRE WHATSAPP
+        // Botón para copiar el mensaje manualmente si el enlace wa.me
+        // no abre (común en navegadores dentro de otras apps).
+        // ============================================================
+        const btnCopy = document.createElement('button');
+        btnCopy.type = 'button';
+        btnCopy.className = 'btn-copy';
+        btnCopy.innerText = '📋 ¿No se abrió WhatsApp? Copiar mensaje';
+        btnCopy.onclick = () => copiarMensajeWhatsApp(mensajeWa, btnCopy);
+        chatBox.appendChild(btnCopy);
         chatBox.scrollTop = chatBox.scrollHeight;
 
         showBotMessage("Recuerda: tu cita solo quedará <b>confirmada</b> hasta que envíes el mensaje de WhatsApp. ¡Gracias por confiar en el Bufete Aguilera Abogados! ⚖️");
+
+        // El proceso terminó: ya no hace falta conservar el progreso guardado.
+        borrarProgreso();
+    }
+
+    function copiarMensajeWhatsApp(mensaje, btnRef) {
+        const textoOriginal = btnRef.innerText;
+        const marcarExito = () => {
+            btnRef.innerText = '✅ Mensaje copiado, pégalo en WhatsApp';
+            setTimeout(() => { btnRef.innerText = textoOriginal; }, 3000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(mensaje).then(marcarExito).catch(() => copiarMensajeFallback(mensaje, marcarExito));
+        } else {
+            copiarMensajeFallback(mensaje, marcarExito);
+        }
+    }
+
+    function copiarMensajeFallback(mensaje, callback) {
+        const textarea = document.createElement('textarea');
+        textarea.value = mensaje;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try { document.execCommand('copy'); callback(); } catch (e) {}
+        document.body.removeChild(textarea);
     }
 
     function sendText() {
         const text = userInput.value.trim();
         if(text === "") return;
+
+        // ============================================================
+        // MEJORA 1: VALIDACIÓN DEL NOMBRE COMPLETO
+        // Exige al menos nombre y apellido (dos palabras) y solo letras,
+        // para evitar registros como "a" o "123".
+        // ============================================================
+        if (step === 1) {
+            const partes = text.split(' ').filter(p => p.length > 0);
+            const soloLetras = /^[a-zA-ZÀ-ÿñÑ\s]+$/.test(text);
+            if (partes.length < 2 || !soloLetras) {
+                showUserMessage(text);
+                userInput.value = "";
+                showBotMessage("Por favor escribe tu <b>nombre completo</b> (nombre y apellido), usando solo letras. 🙂");
+                return;
+            }
+        }
 
         showUserMessage(text);
         userInput.value = "";
@@ -462,11 +822,13 @@
         if (step === 1) {
             data.nombre = text;
             step = 0;
-            setTimeout(askMateria, 900);
+            backStack.push('nombre');
+            avanzarConTyping(askMateria, 900);
         } else if (step === 3) {
             data.caso = text;
             step = 0;
-            setTimeout(askDia, 900);
+            backStack.push('caso');
+            avanzarConTyping(askDia, 900);
         }
     }
 
